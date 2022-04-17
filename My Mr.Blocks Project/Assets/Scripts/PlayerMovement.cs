@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField]private float moveSpeed = 2;
+    [SerializeField]private LevelUI levelUI;
     private Rigidbody2D _playerRB;
 
     private Vector2 _movementInput;
@@ -22,7 +23,13 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(!_levelCompleted && !Input.GetKey(KeyCode.Space))
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            levelUI.PauseGame();
+        }
+        
+        
+        if(!levelUI.IsGamePaused && !_levelCompleted && !Input.GetKey(KeyCode.Space))
         {
             _movementInput = new Vector2(Input.GetAxisRaw("Horizontal"),Input.GetAxisRaw("Vertical")).normalized;
         }
@@ -40,11 +47,18 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other) 
     {
-        
-        if(other.tag == "Actual Door" && !_levelCompleted)
+        if(!_levelCompleted)
         {
-            Debug.Log("Level Completed!!");
             _levelCompleted = true;
-        }    
+            if(other.tag == "Actual Door")
+            {
+                levelUI.ShowResult(true);
+            }
+            else if(other.tag == "Fake Door")
+            {
+                levelUI.ShowResult(false);
+            }    
+        }
+            
     }
 }
